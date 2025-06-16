@@ -6,28 +6,56 @@ import (
 	"os"
 	"path/filepath"
 
+	"flag"
+
 	firecracker "github.com/firecracker-microvm/firecracker-go-sdk"
 	models "github.com/firecracker-microvm/firecracker-go-sdk/client/models"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	vmID     = "demo-vm"
-	tapIface = "ftap0"
-	ipAddr   = "172.16.0.2"
-	gateway  = "172.16.0.1"
-	netmask  = "255.255.255.0"
-	initPath = "sbin/init"
+var (
+	vmID         string
+	tapIface     string
+	ipAddr       string
+	gateway      string
+	netmask      string
+	initPath     string
+	kernelPath   string
+	rootfsPath   string
+	writablePath string
+	runnerToken  string
 )
 
 func main() {
 	ctx := context.Background()
+	// Set default values
+	vmID = "firecracker-runner-vm-" + uuid.New().String()[:8]
+	tapIface = "ftap0"
+	ipAddr = "172.16.0.2"
+	gateway = "172.16.0.1"
+	netmask = "255.255.255.0"
+	initPath = "sbin/init"
+
 	logger := logrus.New().WithField("vm", vmID)
 
-	// Get absolute paths
-	kernelPath, _ := filepath.Abs("./vmlinux-6.1.128")
-	rootfsPath, _ := filepath.Abs("./rootfs.ext4")
-	writablePath, _ := filepath.Abs("./writable.img")
+	// Parse command line arguments
+	flag.StringVar(&kernelPath, "kernel", "./vmlinux-6.1.128", "Path to kernel image")
+	flag.StringVar(&rootfsPath, "rootfs", "./rootfs.ext4", "Path to rootfs image")
+	flag.StringVar(&writablePath, "writable", "./writable.img", "Path to writable image")
+	flag.StringVar(&runnerToken, "runner-token", "github-runner-firecracker", "GitHub runner token")
+	flag.StringVar(&vmID, "vm-id", vmID, "VM ID")
+	flag.StringVar(&tapIface, "tap-iface", tapIface, "Tap interface name")
+	flag.StringVar(&ipAddr, "ip-addr", ipAddr, "IP address")
+	flag.StringVar(&gateway, "gateway", gateway, "Gateway")
+	flag.StringVar(&netmask, "netmask", netmask, "Netmask")
+	flag.StringVar(&initPath, "init-path", initPath, "Init path")
+	flag.Parse()
+
+	// Convert paths to absolute
+	kernelPath, _ = filepath.Abs(kernelPath)
+	rootfsPath, _ = filepath.Abs(rootfsPath)
+	writablePath, _ = filepath.Abs(writablePath)
 
 	// Create writable image
 	os.Remove(writablePath)
@@ -35,6 +63,11 @@ func main() {
 	file.Close()
 	os.Truncate(writablePath, 4*1024*1024*1024) // 4GB
 	os.Chmod(writablePath, 0666)
+
+	instanceMetadata := map[string]string{
+		"RUNNER_NAME": "firecracker-runner" + vmID,
+		"RUNNER_PAT":  runnerToken,
+	}
 
 	// Configure drives
 	rootDrive := models.Drive{
@@ -72,6 +105,7 @@ func main() {
 			VcpuCount:  firecracker.Int64(2),
 			MemSizeMib: firecracker.Int64(4096),
 		},
+		MmdsVersion: firecracker.MMDSv1,
 	}
 
 	machineOpts := []firecracker.Opt{
@@ -79,6 +113,11 @@ func main() {
 	}
 
 	m, err := firecracker.NewMachine(ctx, cfg, machineOpts...)
+
+	if err := m.SetMetadata(ctx, instanceMetadata); err != nil {
+		log.Fatalf("failed to set MMDS metadata: %v", err)
+	}
+
 	if err != nil {
 		log.Fatalf("failed creating machine: %s", err)
 	}
