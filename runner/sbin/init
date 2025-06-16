@@ -2,6 +2,10 @@
 set -eux pipefail
 echo "[🔥] Booted into setup.sh"
 
+
+# Add route to MMDS
+ip route add 169.254.169.254 dev eth0
+
 # Format and mount writable drive (vdb)
 mkfs.ext4 -F /dev/vdb
 mount /dev/vdb /mnt

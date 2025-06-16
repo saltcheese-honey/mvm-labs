@@ -7,8 +7,8 @@ echo "[🔥] Booting setup-runner.sh"
 REPO_OWNER="2pai"
 REPO_NAME="mvm-github-runner"
 RUNNER_LABEL="runner-firecracker"
-
-METADATA=$(curl -s http://169.254.169.254/)
+ 
+METADATA=$(curl -s -H "Accept: application/json" http://169.254.169.254/)
 PAT_TOKEN=$(echo "$METADATA" | jq -r .RUNNER_PAT)
 RUNNER_NAME=$(echo "$METADATA" | jq -r .RUNNER_NAME)
 
