@@ -1,9 +1,6 @@
 FROM ghcr.io/actions/actions-runner:2.325.0
 
 # COPY id_rsa.pub /root/.ssh/authorized_keys
-RUN echo 'root:mvm' | chpasswd                                                                   \
-    && sed -i -e 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-    && sed -i -e 's/^AcceptEnv LANG LC_\*$/#AcceptEnv LANG LC_*/'            /etc/ssh/sshd_config
 
 RUN echo "" > /etc/machine-id && echo "" > /var/lib/dbus/machine-id
 
@@ -24,8 +21,13 @@ RUN apt-get update && \
       ca-certificates \
       build-essential \
       uuid-runtime \
+      openssh-server \
       gnupg \
       && rm -rf /var/lib/apt/lists/*
+
+RUN echo 'root:mvm' | chpasswd                                                                   \
+    && sed -i -e 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i -e 's/^AcceptEnv LANG LC_\*$/#AcceptEnv LANG LC_*/'            /etc/ssh/sshd_config
 
 ENV GO_VERSION=1.24.3
 RUN curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
