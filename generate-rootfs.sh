@@ -10,7 +10,7 @@ rm -rf mnt rootfs rootfs.tar "$OUTPUT_IMG"
 mkdir -p rootfs mnt
 
 echo "[*] Building Docker image..."
-docker build -f Dockerfile.rootfs -t $IMAGE_TAG .
+docker build -f Dockerfile-runner -t $IMAGE_TAG .
 
 echo "[*] Exporting container..."
 CID=$(docker create $IMAGE_TAG)

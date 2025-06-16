@@ -7,7 +7,11 @@ echo "[🔥] Booting setup-runner.sh"
 REPO_OWNER="2pai"
 REPO_NAME="mvm-github-runner"
 RUNNER_LABEL="runner-firecracker"
-RUNNER_NAME="${RUNNER_LABEL}-$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -d'-' -f1)"
+
+METADATA=$(curl -s http://169.254.169.254/)
+PAT_TOKEN=$(echo "$METADATA" | jq -r .RUNNER_PAT)
+RUNNER_NAME=$(echo "$METADATA" | jq -r .RUNNER_NAME)
+
 PAT_TOKEN=""
 RUNNER_HOME="/home/runner"
 WORK_DIR="${RUNNER_HOME}/_work"

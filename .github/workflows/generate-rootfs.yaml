@@ -1,0 +1,20 @@
+name: Generate RootFS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-rootfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate rootfs
+        run: ./generate-rootfs.sh
+
+      - name: Upload rootfs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rootfs
+          path: rootfs.ext4
