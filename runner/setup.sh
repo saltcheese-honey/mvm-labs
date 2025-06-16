@@ -29,6 +29,8 @@ export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 echo "[*] Setting up resolv.conf..."
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
+ping -c2 1.1.1.1
+
 # === GET REGISTRATION TOKEN ===
 echo "[*] Fetching runner registration token... for ${REPO_OWNER}/${REPO_NAME} (${RUNNER_NAME})"
 
@@ -37,7 +39,7 @@ RUNNER_TOKEN=$(curl -s -X POST \
   "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/runners/registration-token" | jq -r .token)
 
 if [[ -z "$RUNNER_TOKEN" || "$RUNNER_TOKEN" == "null" ]]; then
-  echo "[!] Failed to fetch runner token. Check PAT or repo permissions."
+  echo "[!] Failed to fetch runner token. Check PAT or repo permissions. ($RUNNER_TOKEN)"
   exit 1
 fi
 
