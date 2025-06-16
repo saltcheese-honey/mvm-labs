@@ -2,9 +2,9 @@ FROM ghcr.io/actions/actions-runner:2.325.0
 
 # COPY id_rsa.pub /root/.ssh/authorized_keys
 
-RUN echo "" > /etc/machine-id && echo "" > /var/lib/dbus/machine-id
 
 USER root
+RUN echo "" > /etc/machine-id && echo "" > /var/lib/dbus/machine-id
 RUN apt-get update && \
     apt-get install -y \
       iproute2 \
