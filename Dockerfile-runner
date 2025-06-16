@@ -1,0 +1,49 @@
+FROM ghcr.io/actions/actions-runner:2.325.0
+
+COPY id_rsa.pub /root/.ssh/authorized_keys
+RUN echo 'root:fireactions' | chpasswd                                                                   \
+    && sed -i -e 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i -e 's/^AcceptEnv LANG LC_\*$/#AcceptEnv LANG LC_*/'            /etc/ssh/sshd_config
+
+RUN echo "" > /etc/machine-id && echo "" > /var/lib/dbus/machine-id
+
+USER root
+RUN apt-get update && \
+    apt-get install -y \
+      iproute2 \
+      iputils-ping \
+      net-tools \
+      dnsutils \
+      curl \
+      vim-tiny \
+      less \
+      procps \
+      lsof \
+      strace \
+      tcpdump \
+      ca-certificates \
+      build-essential \
+      uuid-runtime \
+      gnupg \
+      && rm -rf /var/lib/apt/lists/*
+
+ENV GO_VERSION=1.24.3
+RUN curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
+    rm go${GO_VERSION}.linux-amd64.tar.gz
+
+ENV PATH=$PATH:/usr/local/go/bin
+            
+# Inject custom init
+COPY runner/sbin/init /sbin/init
+RUN chmod +x /sbin/init
+
+# Inject setup script
+COPY runner/setup.sh /root/setup.sh
+RUN chmod +x /root/setup.sh
+
+RUN echo "nameserver 1.1.1.1" > /root/resolv.conf
+
+
+USER runner

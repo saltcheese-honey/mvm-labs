@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eux pipefail
+echo "[🔥] Booted into setup.sh"
+
+# Format and mount writable drive (vdb)
+mkfs.ext4 -F /dev/vdb
+mount /dev/vdb /mnt
+
+# Create layout inside writable disk
+mkdir -p /mnt/lower /mnt/upper/upper /mnt/upper/work /mnt/overlay
+
+# Mount immutable rootfs as lowerdir
+mount -o ro /dev/vda /mnt/lower
+
+# Mount overlay
+mount -t overlay overlay \
+  -o lowerdir=/mnt/lower,upperdir=/mnt/upper/upper,workdir=/mnt/upper/work \
+  /mnt/overlay
+
+mkdir -p /mnt/overlay/dev /mnt/overlay/proc /mnt/overlay/sys
+mkdir -p /mnt/overlay/dev/pts /mnt/overlay/sys/fs/cgroup /mnt/overlay/tmp
+
+# create swap
+fallocate -l 1G /mnt/upper/swapfile
+chmod 600 /mnt/upper/swapfile
+mkswap /mnt/upper/swapfile
+swapon /mnt/upper/swapfile
+
+# Bind essential virtual filesystems
+for dir in dev proc; do
+    mount --bind /$dir /mnt/overlay/$dir
+done
+
+
+# Enter overlay fs
+exec chroot /mnt/overlay /root/setup.sh
