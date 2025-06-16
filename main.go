@@ -64,7 +64,7 @@ func main() {
 	os.Chmod(writablePath, 0666)
 
 	instanceMetadata := map[string]string{
-		"RUNNER_NAME": "firecracker-runner" + vmID,
+		"RUNNER_NAME": vmID,
 		"RUNNER_PAT":  runnerToken,
 	}
 
