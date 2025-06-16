@@ -117,12 +117,12 @@ func main() {
 		log.Fatalf("failed creating machine: %s", err)
 	}
 
-	if err := m.SetMetadata(ctx, instanceMetadata); err != nil {
-		log.Fatalf("failed to set MMDS metadata: %v", err)
-	}
-
 	if err := m.Start(ctx); err != nil {
 		log.Fatalf("failed starting machine: %s", err)
+	}
+
+	if err := m.SetMetadata(ctx, instanceMetadata); err != nil {
+		log.Fatalf("failed to set MMDS metadata: %v", err)
 	}
 
 	if err := m.Wait(ctx); err != nil {
