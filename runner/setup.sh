@@ -12,7 +12,6 @@ METADATA=$(curl -s -H "Accept: application/json" http://169.254.169.254/)
 PAT_TOKEN=$(echo "$METADATA" | jq -r .RUNNER_PAT)
 RUNNER_NAME=$(echo "$METADATA" | jq -r .RUNNER_NAME)
 
-PAT_TOKEN=""
 RUNNER_HOME="/home/runner"
 WORK_DIR="${RUNNER_HOME}/_work"
 
@@ -29,7 +28,6 @@ export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 echo "[*] Setting up resolv.conf..."
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
-ping -c2 1.1.1.1
 
 # === GET REGISTRATION TOKEN ===
 echo "[*] Fetching runner registration token... for ${REPO_OWNER}/${REPO_NAME} (${RUNNER_NAME})"
