@@ -30,7 +30,8 @@ echo "[*] Setting up resolv.conf..."
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 # === GET REGISTRATION TOKEN ===
-echo "[*] Fetching runner registration token..."
+echo "[*] Fetching runner registration token... for ${REPO_OWNER}/${REPO_NAME} (${RUNNER_NAME})"
+
 RUNNER_TOKEN=$(curl -s -X POST \
   -H "Authorization: token ${PAT_TOKEN}" \
   "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/runners/registration-token" | jq -r .token)
