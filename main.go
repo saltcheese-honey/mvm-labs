@@ -85,6 +85,7 @@ func main() {
 
 	// Configure network
 	networkInterface := firecracker.NetworkInterface{
+		AllowMMDS: true,
 		StaticConfiguration: &firecracker.StaticNetworkConfiguration{
 			HostDevName: tapIface,
 			MacAddress:  "06:00:AC:10:00:02",
