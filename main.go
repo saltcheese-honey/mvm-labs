@@ -44,7 +44,6 @@ func main() {
 	flag.StringVar(&rootfsPath, "rootfs", "./rootfs.ext4", "Path to rootfs image")
 	flag.StringVar(&writablePath, "writable", "./writable.img", "Path to writable image")
 	flag.StringVar(&runnerToken, "runner-token", "github-runner-firecracker", "GitHub runner token")
-	flag.StringVar(&vmID, "vm-id", vmID, "VM ID")
 	flag.StringVar(&tapIface, "tap-iface", tapIface, "Tap interface name")
 	flag.StringVar(&ipAddr, "ip-addr", ipAddr, "IP address")
 	flag.StringVar(&gateway, "gateway", gateway, "Gateway")
@@ -114,12 +113,12 @@ func main() {
 
 	m, err := firecracker.NewMachine(ctx, cfg, machineOpts...)
 
-	if err := m.SetMetadata(ctx, instanceMetadata); err != nil {
-		log.Fatalf("failed to set MMDS metadata: %v", err)
-	}
-
 	if err != nil {
 		log.Fatalf("failed creating machine: %s", err)
+	}
+
+	if err := m.SetMetadata(ctx, instanceMetadata); err != nil {
+		log.Fatalf("failed to set MMDS metadata: %v", err)
 	}
 
 	if err := m.Start(ctx); err != nil {
