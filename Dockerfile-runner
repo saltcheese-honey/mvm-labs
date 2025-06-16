@@ -45,7 +45,7 @@ RUN chmod +x /sbin/init
 COPY runner/setup.sh /root/setup.sh
 RUN chmod +x /root/setup.sh
 
-RUN echo "nameserver 1.1.1.1" > /root/resolv.conf
+RUN echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
 
 USER runner
