@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   hello:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: runner-ortus-large
     steps:
       - run: |
           echo "Hello from Ortus!"
