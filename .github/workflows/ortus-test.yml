@@ -1,0 +1,11 @@
+name: Ortus Test
+on: workflow_dispatch
+
+jobs:
+  hello:
+    runs-on: runner-ortus-large
+    steps:
+      - run: |
+          echo "Hello from Ortus!"
+          echo "Hostname: $(hostname)"
+          uname -r
