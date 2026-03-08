@@ -1,0 +1,12 @@
+# .github/workflows/ortus-test.yml
+name: Ortus Test
+on: workflow_dispatch
+
+jobs:
+  hello:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - run: |
+          echo "Hello from Ortus!"
+          echo "Hostname: $(hostname)"
+          uname -r
